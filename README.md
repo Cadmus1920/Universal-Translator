@@ -37,17 +37,15 @@ A lightweight browser extension that translates selected text into any language 
 - Fixed MV3 context invalidation issues
 - Stabilized background messaging and settings persistence
 
-## v1.4.1 – 2026‑01‑18
+## v1.4.1 
 - Added “Full‑screen” button to the translator bubble.
 - Preserves paragraph styling when toggling full‑screen.
 - Updated escape‑key handling to exit full‑screen before closing.
 
-## v1.4.2 – 2026‑01‑21
+## v1.4.2
 - Added a **language selector** to the translator bubble.
 - Implemented **instant re‑translation** when the user changes the language (no need to close/re‑open the bubble).
 - Fixed a bug where the context‑menu entry disappeared after a reload by ensuring the menu is registered on every service‑worker start.
 
 ## Status
 Personal project. Stable baseline tagged as v1.0-stable.
-# Universal-Translator
-# Universal-Translator
