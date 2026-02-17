@@ -60,6 +60,18 @@ window.applyTheme = function (elem, theme) {
   const header = elem.querySelector("#tb-header");
   if (header) header.style.background = headerBg;
 
+  // Style the language selector dropdown
+  const langSelect = elem.querySelector("#tb-lang-select");
+  if (langSelect) {
+    Object.assign(langSelect.style, {
+      background: isDark ? "#2a2e38" : "#ffffff",
+      color: fg,
+      border: isDark ? "1px solid #555" : "1px solid #888",
+      padding: "2px 4px",
+      borderRadius: "3px"
+    });
+  }
+
   // Return the values in case the caller wants to store them
   return { bg, fg, headerBg, border };
 };

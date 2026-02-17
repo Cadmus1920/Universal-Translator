@@ -20,8 +20,12 @@
     });
   }
 
-  function saveSettings(settings) {
+  function saveSettings(settings, updateStored) {
     chrome.runtime.sendMessage({ type: "saveSettings", data: settings });
+    // Update the stored reference so subsequent saves include all settings
+    if (updateStored) {
+      Object.assign(updateStored, settings);
+    }
   }
 
   // --------------------------------------------------------------
@@ -179,17 +183,17 @@
 
     // Initialize handlers with cleanup tracking
     cleanupFns.push(DragHandler(bubble, header, UI_DEFAULTS, (pos) => {
-      saveSettings({ ...stored, left: pos.left, top: pos.top });
+      saveSettings({ ...stored, left: pos.left, top: pos.top }, stored);
     }));
 
     cleanupFns.push(ResizeHandler(bubble, resizer, UI_DEFAULTS, (size) => {
-      saveSettings({ ...stored, width: size.width, height: size.height });
+      saveSettings({ ...stored, width: size.width, height: size.height }, stored);
     }));
 
     // Language change handler
     langSelect.addEventListener("change", () => {
       const newLang = langSelect.value;
-      saveSettings({ ...stored, targetLang: newLang });
+      saveSettings({ ...stored, targetLang: newLang }, stored);
 
       chrome.runtime.sendMessage(
         { type: "retranslate", payload: { text: content.textContent } },
@@ -209,7 +213,7 @@
       if (fontSize < UI_DEFAULTS.maxFont) {
         fontSize += UI_DEFAULTS.fontStep;
         refreshFont();
-        saveSettings({ ...stored, fontSize });
+        saveSettings({ ...stored, fontSize }, stored);
       }
     };
 
@@ -217,7 +221,7 @@
       if (fontSize > UI_DEFAULTS.minFont) {
         fontSize -= UI_DEFAULTS.fontStep;
         refreshFont();
-        saveSettings({ ...stored, fontSize });
+        saveSettings({ ...stored, fontSize }, stored);
       }
     };
 
@@ -233,7 +237,7 @@
     btnTheme.onclick = () => {
       theme = theme === "dark" ? "light" : "dark";
       refreshTheme();
-      saveSettings({ ...stored, theme });
+      saveSettings({ ...stored, theme }, stored);
     };
 
     btnFull.onclick = () => {
