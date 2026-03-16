@@ -111,10 +111,10 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     chrome.storage.local.get([STORAGE_KEY], (result) => {
       const stored = validateStoredSettings(result[STORAGE_KEY] || {});
       const uiLang = chrome.i18n.getUILanguage().split("-")[0];
-      const targetLang = stored.targetLang || uiLang;
+      const targetLang = msg.payload?.targetLang || stored.targetLang || uiLang;
 
       translateText(raw, targetLang)
-        .then(translated => sendResponse({ ok: true, translated }))
+        .then(({ translated, detectedLang }) => sendResponse({ ok: true, translated, detectedLang }))
         .catch(err => {
           console.error("Re-translate failed:", err);
           sendResponse({ ok: false, error: err.message });
@@ -161,7 +161,9 @@ async function translateText(text, targetLang) {
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
   const data = await response.json();
-  return data[0].map(item => item[0]).join("");
+  const translated = data[0].map(item => item[0]).join("");
+  const detectedLang = data[2] || null;
+  return { translated, detectedLang };
 }
 
 /* -----------------------------------------------------------------
@@ -202,7 +204,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   try {
     // Perform the translation
-    const translated = await translateText(raw, targetLang);
+    const { translated, detectedLang } = await translateText(raw, targetLang);
 
     // Inject UI scripts into the active tab
     await injectUIScripts(tab.id);
@@ -210,8 +212,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     // Show the bubble with the translation
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: t => window.showTranslatorBubble(t),
-      args: [translated]
+      func: (t, lang) => window.showTranslatorBubble(t, lang),
+      args: [translated, detectedLang]
     });
   } catch (err) {
     console.error("Translation failed:", err);
